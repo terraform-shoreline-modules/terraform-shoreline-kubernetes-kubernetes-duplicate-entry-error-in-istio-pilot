@@ -1,15 +1,15 @@
 resource "shoreline_notebook" "duplicate_entry_error_in_istio_pilot" {
   name       = "duplicate_entry_error_in_istio_pilot"
   data       = file("${path.module}/data/duplicate_entry_error_in_istio_pilot.json")
-  depends_on = [shoreline_action.invoke_get_istio_pilot_logs,shoreline_action.invoke_restart_istio_pilot_service]
+  depends_on = [shoreline_action.invoke_log_analysis,shoreline_action.invoke_restart_istio_pilot_service]
 }
 
-resource "shoreline_file" "get_istio_pilot_logs" {
-  name             = "get_istio_pilot_logs"
-  input_file       = "${path.module}/data/get_istio_pilot_logs.sh"
-  md5              = filemd5("${path.module}/data/get_istio_pilot_logs.sh")
+resource "shoreline_file" "log_analysis" {
+  name             = "log_analysis"
+  input_file       = "${path.module}/data/log_analysis.sh"
+  md5              = filemd5("${path.module}/data/log_analysis.sh")
   description      = "Configuration errors: The duplicate entry error may occur if there are configuration errors in the instance or labels of Istio Pilot. This could happen due to a misconfiguration while setting up Istio Pilot or changes made to the configuration by mistake."
-  destination_path = "/agent/scripts/get_istio_pilot_logs.sh"
+  destination_path = "/agent/scripts/log_analysis.sh"
   resource_query   = "host"
   enabled          = true
 }
@@ -24,14 +24,14 @@ resource "shoreline_file" "restart_istio_pilot_service" {
   enabled          = true
 }
 
-resource "shoreline_action" "invoke_get_istio_pilot_logs" {
-  name        = "invoke_get_istio_pilot_logs"
+resource "shoreline_action" "invoke_log_analysis" {
+  name        = "invoke_log_analysis"
   description = "Configuration errors: The duplicate entry error may occur if there are configuration errors in the instance or labels of Istio Pilot. This could happen due to a misconfiguration while setting up Istio Pilot or changes made to the configuration by mistake."
-  command     = "`chmod +x /agent/scripts/get_istio_pilot_logs.sh && /agent/scripts/get_istio_pilot_logs.sh`"
-  params      = ["YOUR_LOG_FILE_PATH","POD_NAME","NAMESPACE","YOUR_CONTAINER_NAME"]
-  file_deps   = ["get_istio_pilot_logs"]
+  command     = "`chmod +x /agent/scripts/log_analysis.sh && /agent/scripts/log_analysis.sh`"
+  params      = ["POD_NAME","YOUR_LOG_FILE_PATH","NAMESPACE","YOUR_CONTAINER_NAME"]
+  file_deps   = ["log_analysis"]
   enabled     = true
-  depends_on  = [shoreline_file.get_istio_pilot_logs]
+  depends_on  = [shoreline_file.log_analysis]
 }
 
 resource "shoreline_action" "invoke_restart_istio_pilot_service" {

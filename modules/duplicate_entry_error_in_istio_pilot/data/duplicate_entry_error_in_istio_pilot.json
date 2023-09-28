@@ -3,7 +3,7 @@
   "description": "This incident type involves a duplicate entry error in Istio Pilot, which may result in issues with the service it is providing. The error message usually contains information about the instance and labels involved in the error. It is important to investigate and resolve this issue promptly to prevent any further disruptions.",
   "params": [
     {
-      "name": "YOUR_LOG_FILE_PATH",
+      "name": "ISTIO_PILOT_DEPLOYMENT_NAME",
       "value": ""
     },
     {
@@ -11,11 +11,11 @@
       "value": ""
     },
     {
-      "name": "ISTIO_PILOT_DEPLOYMENT_NAME",
+      "name": "ISTIO_PILOT_APP_LABEL",
       "value": ""
     },
     {
-      "name": "NAMESPACE",
+      "name": "YOUR_LOG_FILE_PATH",
       "value": ""
     },
     {
@@ -23,7 +23,7 @@
       "value": ""
     },
     {
-      "name": "ISTIO_PILOT_APP_LABEL",
+      "name": "NAMESPACE",
       "value": ""
     },
     {
@@ -112,7 +112,7 @@
       "name": "cell_13",
       "type": "OP_LANG",
       "enabled": true,
-      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | random=1 | limit=1 | invoke_get_istio_pilot_logs($YOUR_LOG_FILE_PATH, $POD_NAME, $NAMESPACE, $YOUR_CONTAINER_NAME)"
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | random=1 | limit=1 | invoke_log_analysis($POD_NAME, $YOUR_LOG_FILE_PATH, $NAMESPACE, $YOUR_CONTAINER_NAME)"
     },
     {
       "name": "cell_14",
