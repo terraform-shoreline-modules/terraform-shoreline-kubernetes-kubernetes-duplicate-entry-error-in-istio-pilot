@@ -1,0 +1,130 @@
+{
+  "name": "duplicate_entry_error_in_istio_pilot",
+  "description": "This incident type involves a duplicate entry error in Istio Pilot, which may result in issues with the service it is providing. The error message usually contains information about the instance and labels involved in the error. It is important to investigate and resolve this issue promptly to prevent any further disruptions.",
+  "params": [
+    {
+      "name": "YOUR_LOG_FILE_PATH",
+      "value": ""
+    },
+    {
+      "name": "POD_NAME",
+      "value": ""
+    },
+    {
+      "name": "ISTIO_PILOT_DEPLOYMENT_NAME",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    },
+    {
+      "name": "ENTRY",
+      "value": ""
+    },
+    {
+      "name": "ISTIO_PILOT_APP_LABEL",
+      "value": ""
+    },
+    {
+      "name": "YOUR_CONTAINER_NAME",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Duplicate Entry Error in Istio Pilot\nThis incident type involves a duplicate entry error in Istio Pilot, which may result in issues with the service it is providing. The error message usually contains information about the instance and labels involved in the error. It is important to investigate and resolve this issue promptly to prevent any further disruptions."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Find the Istio Pilot pods running"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl get pods -n ${NAMESPACE} -l app=istio-pilot`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Get logs from the Istio Pilot pod"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl logs ${POD_NAME} -n ${NAMESPACE} istio-proxy`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the Istio Pilot configuration file"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE | name=$POD_NAME | `cat /etc/istio/proxy/envoy-rev0.json`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the Istio Pilot configuration file for duplicate entries"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "container | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE | name=$$ENTRY | `cat /etc/istio/proxy/envoy-rev0.json | grep -c ${ENTRY}`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the Istio Pilot configuration file for all entries"
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE | name=$POD_NAME | `cat /etc/istio/proxy/envoy-rev0.json | grep ${ENTRY}`"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Configuration errors: The duplicate entry error may occur if there are configuration errors in the instance or labels of Istio Pilot. This could happen due to a misconfiguration while setting up Istio Pilot or changes made to the configuration by mistake."
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | random=1 | limit=1 | invoke_get_istio_pilot_logs($YOUR_LOG_FILE_PATH, $POD_NAME, $NAMESPACE, $YOUR_CONTAINER_NAME)"
+    },
+    {
+      "name": "cell_14",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Restart the Istio Pilot service to see if that resolves the issue. If not, attempt to roll back to a previous version of the service that was working correctly."
+    },
+    {
+      "name": "cell_15",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | random=1 | limit=1 | invoke_restart_istio_pilot_service($ISTIO_PILOT_DEPLOYMENT_NAME, $ISTIO_PILOT_APP_LABEL)"
+    }
+  ]
+}
